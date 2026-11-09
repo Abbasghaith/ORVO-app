@@ -20,7 +20,7 @@ const initialPosts = [
   },
   {
     id: 3, user: 'sara.daily', name: 'سارة محمد', avatar: 'س',
-    time: 'منذ ٣ ساعات', caption: 'بداية جديدة، وطاقة أجمل. يومكم سعيد يا أصدقاء ORVO 💜',
+    time: 'منذ ٣ ساعات', caption: 'بداية جديدة، وطاقة أجمل. يومكم سعيد يا أصدقاء ORVO',
     image: '', likes: 42, comments: [{id: 2, user: 'mohammed', text: 'يوم سعيد!'}], liked: false, saved: false, tag: 'يوميات'
   }
 ];
@@ -138,9 +138,7 @@ function App() {
             <kbd>⌘ K</kbd>
           </div>
           <div className="top-actions">
-            <button className="icon-button theme-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} title="تغيير المظهر">
-              {theme === 'light' ? <Moon size={19}/> : <Sun size={19}/>}
-            </button>
+            <button className="icon-button settings-top" onClick={() => setPage('settings')} title="الإعدادات" aria-label="الإعدادات"><Settings size={19}/></button>
             <button className="icon-button notification-top" onClick={() => setPage('notifications')} title="الإشعارات"><Bell size={19}/><i /></button>
             <Avatar letter="أ" small gradient={2}/>
           </div>
@@ -158,7 +156,7 @@ function App() {
           })}
           <div className="sidebar-bottom">
             <div className="sidebar-label">حسابك</div>
-            <button className="nav-item" onClick={() => notify('إعدادات الحساب ستتوفر بعد ربط قاعدة البيانات')}><Settings size={19}/><span>الإعدادات</span></button>
+            <button className={`nav-item ${page === 'settings' ? 'active' : ''}`} onClick={() => setPage('settings')}><Settings size={19}/><span>الإعدادات</span></button>
             <div className="mini-profile">
               <Avatar letter="أ" small gradient={2}/>
               <div><strong>أنت</strong><small>@you.orvo</small></div>
@@ -173,6 +171,7 @@ function App() {
           {page === 'explore' && <ExplorePage posts={filteredPosts} people={people} following={following} setFollowing={setFollowing} search={search} setSearch={setSearch} toggleLike={toggleLike} />}
           {page === 'notifications' && <NotificationsPage />}
           {page === 'profile' && <ProfilePage posts={posts.filter(p => p.user === 'you.orvo')} profileTab={profileTab} setProfileTab={setProfileTab} />}
+          {page === 'settings' && <SettingsPage theme={theme} setTheme={setTheme} notify={notify} />}
         </main>
 
         <aside className="right-rail">
@@ -260,8 +259,26 @@ function NotificationsPage() {
   return <div className="page-column"><div className="page-title"><span className="eyebrow">ابقَ على اطلاع</span><h1>الإشعارات</h1><p>آخر التفاعلات مع حسابك.</p></div><div className="notifications-card">{items.map((n,i)=><div className="notification-row" key={i}><Avatar letter={n.letter} small gradient={n.color}/><div className="notification-copy"><p><strong>{n.name}</strong> {n.action}</p><small>{n.time}</small></div><span className="notification-unread"/>{i===0 && <div className="notification-thumb"><Heart size={19}/></div>}</div>)}</div><div className="demo-note">هذه إشعارات تجريبية. ستصبح حقيقية بعد ربط قاعدة البيانات.</div></div>;
 }
 
+function SettingsPage({theme, setTheme, notify}) {
+  return <div className="page-column settings-page">
+    <div className="page-title"><span className="eyebrow">خصص تجربتك</span><h1>الإعدادات</h1><p>تحكم بمظهر ORVO وطريقة استخدامك له.</p></div>
+    <section className="settings-section">
+      <div className="settings-section-heading"><div><span className="settings-kicker">المظهر</span><h2>المظهر العام</h2><p>اختر الشكل الذي يريح عينيك. سيتم حفظ اختيارك على هذا الجهاز.</p></div><div className="settings-heading-icon"><Settings size={21}/></div></div>
+      <div className="theme-options">
+        <button className={`theme-option ${theme === 'light' ? 'chosen' : ''}`} onClick={() => {setTheme('light'); notify('تم تفعيل المظهر النهاري');}}>
+          <span className="theme-preview theme-preview-light"><i/><i/><i/></span><span className="theme-option-copy"><strong><Sun size={17}/> المظهر النهاري</strong><small>خلفية فاتحة وألوان هادئة</small></span>{theme === 'light' && <Check className="theme-check" size={18}/>}
+        </button>
+        <button className={`theme-option ${theme === 'dark' ? 'chosen' : ''}`} onClick={() => {setTheme('dark'); notify('تم تفعيل المظهر الليلي');}}>
+          <span className="theme-preview theme-preview-dark"><i/><i/><i/></span><span className="theme-option-copy"><strong><Moon size={17}/> المظهر الليلي</strong><small>درجات داكنة مريحة في الإضاءة المنخفضة</small></span>{theme === 'dark' && <Check className="theme-check" size={18}/>}
+        </button>
+      </div>
+    </section>
+    <section className="settings-section settings-about"><span className="settings-kicker">عن المنصة</span><h2>ORVO</h2><p>مساحة تجمعك بالأشخاص والأفكار واللحظات التي تستحق المشاركة.</p><div className="settings-version">الإصدار التجريبي <b>1.1</b></div></section>
+  </div>;
+}
+
 function ProfilePage({posts, profileTab, setProfileTab}) {
-  return <div className="page-column"><div className="page-title"><span className="eyebrow">مساحتك الخاصة</span><h1>الملف الشخصي</h1></div><div className="profile-cover"><div className="cover-orb orb-one"/><div className="cover-orb orb-two"/></div><div className="profile-detail"><Avatar letter="أ" gradient={2}/><button className="outline-button edit-profile" onClick={() => alert('تعديل الملف الشخصي سيتوفر بعد ربط قاعدة البيانات')}>تعديل الملف</button><h2>أنت</h2><span className="profile-handle">@you.orvo</span><p>أهلاً بكم في عالمي على ORVO 💜</p><div className="profile-counts"><span><strong>{posts.length}</strong> منشورات</span><span><strong>0</strong> متابعون</span><span><strong>0</strong> تتابع</span></div></div><div className="profile-tabs"><button className={profileTab === 'posts' ? 'selected' : ''} onClick={() => setProfileTab('posts')}><ImagePlus size={17}/> المنشورات</button><button className={profileTab === 'saved' ? 'selected' : ''} onClick={() => setProfileTab('saved')}><Bookmark size={17}/> المحفوظات</button></div><div className="profile-post-grid">{(profileTab === 'posts' ? posts : []).map(p => <div key={p.id} className="profile-post">{p.image ? <img src={p.image} alt="منشور"/> : <div>{p.caption}</div>}</div>)}</div>{posts.length===0 && <div className="empty-state"><Camera size={28}/><h3>لم تنشر شيئاً بعد</h3><p>ستظهر منشوراتك هنا عندما تبدأ المشاركة.</p></div>}</div>;
+  return <div className="page-column"><div className="page-title"><span className="eyebrow">مساحتك الخاصة</span><h1>الملف الشخصي</h1></div><div className="profile-cover"><div className="cover-orb orb-one"/><div className="cover-orb orb-two"/></div><div className="profile-detail"><Avatar letter="أ" gradient={2}/><button className="outline-button edit-profile" onClick={() => alert('تعديل الملف الشخصي سيتوفر بعد ربط قاعدة البيانات')}>تعديل الملف</button><h2>أنت</h2><span className="profile-handle">@you.orvo</span><p>أهلاً بكم في عالمي على ORVO</p><div className="profile-counts"><span><strong>{posts.length}</strong> منشورات</span><span><strong>0</strong> متابعون</span><span><strong>0</strong> تتابع</span></div></div><div className="profile-tabs"><button className={profileTab === 'posts' ? 'selected' : ''} onClick={() => setProfileTab('posts')}><ImagePlus size={17}/> المنشورات</button><button className={profileTab === 'saved' ? 'selected' : ''} onClick={() => setProfileTab('saved')}><Bookmark size={17}/> المحفوظات</button></div><div className="profile-post-grid">{(profileTab === 'posts' ? posts : []).map(p => <div key={p.id} className="profile-post">{p.image ? <img src={p.image} alt="منشور"/> : <div>{p.caption}</div>}</div>)}</div>{posts.length===0 && <div className="empty-state"><Camera size={28}/><h3>لم تنشر شيئاً بعد</h3><p>ستظهر منشوراتك هنا عندما تبدأ المشاركة.</p></div>}</div>;
 }
 
 export default App;
